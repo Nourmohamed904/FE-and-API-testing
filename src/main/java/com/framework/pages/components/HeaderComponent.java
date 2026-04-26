@@ -16,6 +16,17 @@ public class HeaderComponent extends BasePage {
     private final By registerOption = By.linkText("Register");
     private final By searchBox = By.name("search");
     private final By searchButton = By.cssSelector("button.btn.btn-default.btn-lg");
+    private final By shoppingCartIcon = By.cssSelector("a[title='Shopping Cart']");
+    private final By cartTotal = By.id("cart-total");
+
+    public CartPage goToShoppingCart() {
+        click(shoppingCartIcon);
+        return new CartPage(driver);
+    }
+
+    public String getCartTotalText() {
+        return getText(cartTotal);
+    }
 
     public HeaderComponent openMyAccountMenu() {
         click(myAccountMenu);
