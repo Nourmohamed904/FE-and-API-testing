@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class BasePage {
 
@@ -34,7 +35,11 @@ public class BasePage {
         wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
     }
 
+    // In BasePage.java, update the type method:
     protected void type(By locator, String text) {
+        if (text == null || text.equals("null") || text.isEmpty()) {
+            return;  // Don't type anything if text is null or empty
+        }
         WebElement element = waitForElement(locator);
         element.clear();
         element.sendKeys(text);
@@ -62,5 +67,14 @@ public class BasePage {
 
     public HeaderComponent header() {
         return header;
+    }
+
+    // Add this method to BasePage.java
+    protected boolean isElementPresentFast(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class SearchPage extends BasePage {
 
@@ -30,17 +31,21 @@ public class SearchPage extends BasePage {
     private final By leftSideMenu = By.cssSelector(".list-group a");
     private final By activeLeftMenuItem = By.cssSelector(".list-group a.active");
 
-    // Navigation methods - Using the correct menu structure
-    private final By desktopsMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(),'Desktops')]");
+    // Navigation methods - Using correct selectors for the site
+    private final By desktopsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Desktops')]");
     private final By showAllDesktops = By.xpath("//a[contains(text(),'Show All Desktops')]");
-    private final By tabletsMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(),'Tablets')]");
-    private final By phonesMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(),'Phones & PDAs')]");
-    private final By mp3PlayersMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(),'MP3 Players')]");
+    private final By tabletsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Tablets')]");
+    private final By phonesMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Phones & PDAs')]");
 
     // Category navigation methods
     public SearchPage goToDesktops() {
         click(desktopsMenu);
-        waitForElement(showAllDesktops);
+        // Wait a bit for submenu to appear
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         click(showAllDesktops);
         return this;
     }
@@ -52,11 +57,6 @@ public class SearchPage extends BasePage {
 
     public SearchPage goToPhonesAndPDAs() {
         click(phonesMenu);
-        return this;
-    }
-
-    public SearchPage goToMP3Players() {
-        click(mp3PlayersMenu);
         return this;
     }
 
@@ -85,13 +85,6 @@ public class SearchPage extends BasePage {
 
     public boolean hasResults() {
         return areElementsPresent(productItems);
-    }
-
-    public String getNoResultsMessage() {
-        if (areElementsPresent(noResultsMessage)) {
-            return getText(noResultsMessage);
-        }
-        return "";
     }
 
     // Sorting methods
@@ -152,5 +145,13 @@ public class SearchPage extends BasePage {
 
     public int getProductCount() {
         return getElementCount(productItems);
+    }
+
+    public String getNoResultsMessage() {
+        try {
+            return driver.findElement(noResultsMessage).getText();
+        } catch (NoSuchElementException e) {
+            return "";
+        }
     }
 }
