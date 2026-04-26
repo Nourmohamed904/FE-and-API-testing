@@ -1,4 +1,4 @@
-package com.framework.base;
+package base;
 
 import com.framework.utils.ConfigReader;
 import com.framework.utils.WebDriverFactory;
