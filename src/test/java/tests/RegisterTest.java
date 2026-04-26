@@ -1,42 +1,86 @@
-package com.framework.utils;
+package tests;
 
+import base.BaseTest;
+import com.framework.pages.*;
+import com.framework.utils.ExcelReader;
 import io.qameta.allure.Allure;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
-public class AllureHelper {
+@Epic("Authentication")
+@Feature("Registration Functionality")
+public class RegisterTest extends BaseTest {
 
-    @Attachment(value = "Screenshot on failure", type = "image/png")
-    public static byte[] takeScreenshot(WebDriver driver) {
-        try {
-            return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-        } catch (Exception e) {
-            return null;
-        }
+    @DataProvider(name = "registerData")
+    public Object[][] getRegisterData() {
+        ExcelReader reader = new ExcelReader("testdata/testdata.xlsx", "Register");
+        return reader.getData();
     }
 
-    @Attachment(value = "Test Log: {0}", type = "text/plain")
-    public static String attachLog(String message) {
-        return message;
-    }
+    @Test(dataProvider = "registerData")
+    @Description("Test user registration with valid and invalid data")
+    @Story("User Registration")
+    public void testRegister(String firstName, String lastName, String email,
+                             String telephone, String password,
+                             String expectedResult, String expectedErrorField) {
 
-    @Attachment(value = "Page Source", type = "text/html")
-    public static String attachPageSource(WebDriver driver) {
-        return driver.getPageSource();
-    }
+        Allure.addAttachment("Test Data", "First Name: " + firstName +
+                ", Last Name: " + lastName +
+                ", Email: " + email +
+                ", Expected: " + expectedResult);
 
-    // Alternative method using Allure.addAttachment (more flexible)
-    public static void addLog(String message) {
-        Allure.addAttachment("Log Message", "text/plain", message);
-    }
+        HomePage home = new HomePage(driver);
+        RegisterPage register = home.header().goToRegister();
 
-    public static void addScreenshot(WebDriver driver, String name) {
-        try {
-            byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-            Allure.addAttachment(name, "image/png", screenshot, "png");
-        } catch (Exception e) {
-            Allure.addAttachment("Screenshot Error", "text/plain", e.getMessage());
+        if (expectedResult.equalsIgnoreCase("success")) {
+            Allure.addAttachment("Action", "Attempting successful registration");
+            AccountPage account = register.registerSuccess(firstName, lastName, email, telephone, password);
+
+            // Check for success message or account page
+            boolean success = account.isRegistrationSuccessDisplayed() || account.isAccountPageDisplayed();
+            Assert.assertTrue(success, "Registration should be successful");
+            Allure.addAttachment("Result", "Registration successful");
+        } else {
+            Allure.addAttachment("Action", "Attempting registration with errors - Expected error field: " + expectedErrorField);
+            register.registerWithErrors(firstName, lastName, email, telephone, password);
+
+            // Verify specific error based on expected_error_field
+            boolean errorDisplayed = false;
+            if (expectedErrorField != null && !expectedErrorField.isEmpty() && !expectedErrorField.equals("null")) {
+                switch (expectedErrorField.toLowerCase()) {
+                    case "firstname":
+                        errorDisplayed = register.isFirstNameErrorDisplayed();
+                        break;
+                    case "lastname":
+                        errorDisplayed = register.isLastNameErrorDisplayed();
+                        break;
+                    case "email":
+                        errorDisplayed = register.isEmailErrorDisplayed();
+                        break;
+                    case "telephone":
+                        errorDisplayed = register.isTelephoneErrorDisplayed();
+                        break;
+                    case "password":
+                        errorDisplayed = register.isPasswordErrorDisplayed();
+                        break;
+                }
+            } else {
+                // If no specific field, check if any error appears
+                errorDisplayed = register.isFirstNameErrorDisplayed() ||
+                        register.isLastNameErrorDisplayed() ||
+                        register.isEmailErrorDisplayed() ||
+                        register.isTelephoneErrorDisplayed() ||
+                        register.isPasswordErrorDisplayed();
+            }
+
+            Assert.assertTrue(errorDisplayed,
+                    "Expected error should be displayed for: " + expectedErrorField);
+            Allure.addAttachment("Result", "Expected error displayed correctly");
         }
     }
 }

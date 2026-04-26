@@ -1,20 +1,49 @@
 package com.framework.pages.components;
 
-import com.framework.base.BasePage;
 import com.framework.pages.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 
-public class HeaderComponent extends BasePage {
+public class HeaderComponent {
+
+    protected WebDriver driver;
+    protected WebDriverWait wait;
 
     public HeaderComponent(WebDriver driver) {
-        super(driver);
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    protected WebElement waitForElement(By locator) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+
+    protected void type(By locator, String text) {
+        WebElement element = waitForElement(locator);
+        element.clear();
+        element.sendKeys(text);
+    }
+
+    protected String getText(By locator) {
+        return waitForElement(locator).getText();
+    }
+
+    protected boolean areElementsPresent(By locator) {
+        return !driver.findElements(locator).isEmpty();
     }
 
     private final By myAccountMenu = By.cssSelector("a[title='My Account']");
     private final By loginOption = By.linkText("Login");
     private final By registerOption = By.linkText("Register");
-    private final By logoutOption = By.linkText("Logout");
+    private final By logoutOption = By.xpath("//a[text()='Logout']");
     private final By searchBox = By.name("search");
     private final By searchButton = By.cssSelector(".input-group-btn button");
     private final By cartDropdownTrigger = By.cssSelector("#cart .btn-inverse");
@@ -22,29 +51,13 @@ public class HeaderComponent extends BasePage {
     private final By cartTotal = By.id("cart-total");
     private final By currencySelector = By.id("form-currency");
     private final By euroCurrency = By.name("EUR");
-    private final By poundCurrency = By.name("GBP");
-    private final By dollarCurrency = By.name("USD");
 
-    // Currency methods (for "Change currency" test)
     public HeaderComponent changeCurrencyToEuro() {
         click(currencySelector);
         click(euroCurrency);
         return this;
     }
 
-    public HeaderComponent changeCurrencyToPound() {
-        click(currencySelector);
-        click(poundCurrency);
-        return this;
-    }
-
-    public HeaderComponent changeCurrencyToDollar() {
-        click(currencySelector);
-        click(dollarCurrency);
-        return this;
-    }
-
-    // Shopping cart methods
     public CartPage goToShoppingCart() {
         click(cartDropdownTrigger);
         click(viewCartLink);
@@ -55,7 +68,6 @@ public class HeaderComponent extends BasePage {
         return getText(cartTotal);
     }
 
-    // My Account menu methods
     public HeaderComponent openMyAccountMenu() {
         click(myAccountMenu);
         return this;
@@ -75,18 +87,12 @@ public class HeaderComponent extends BasePage {
 
     public HomePage logout() {
         openMyAccountMenu();
-        click(logoutOption);
+        if (areElementsPresent(logoutOption)) {
+            click(logoutOption);
+        }
         return new HomePage(driver);
     }
 
-    public boolean isUserLoggedIn() {
-        openMyAccountMenu();
-        boolean hasLogout = areElementsPresent(logoutOption);
-        click(myAccountMenu);
-        return hasLogout;
-    }
-
-    // Search method - returns ProductListPage
     public SearchPage search(String productName) {
         type(searchBox, productName);
         click(searchButton);

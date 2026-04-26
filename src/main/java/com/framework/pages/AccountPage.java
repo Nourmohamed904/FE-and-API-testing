@@ -11,21 +11,24 @@ public class AccountPage extends BasePage {
     }
 
     private final By accountHeader = By.cssSelector("#content h2");
+    private final By successMessage = By.xpath("//h1[contains(text(), 'Your Account Has Been Created!')]");
     private final By logoutLink = By.linkText("Logout");
+    private final By myAccountText = By.xpath("//h2[contains(text(), 'My Account')]");
 
     public boolean isAccountPageDisplayed() {
-        return isDisplayed(accountHeader);
+        // Check for My Account header on account page
+        return isDisplayed(myAccountText) || isDisplayed(accountHeader);
+    }
+
+    public boolean isRegistrationSuccessDisplayed() {
+        return isDisplayed(successMessage);
     }
 
     public boolean isLogoutDisplayed() {
-        header().openMyAccountMenu();
-        boolean displayed = isDisplayed(logoutLink);
-        header().openMyAccountMenu(); // Close menu
-        return displayed;
+        return isDisplayed(logoutLink);
     }
 
     public HomePage logout() {
-        header().openMyAccountMenu();
         click(logoutLink);
         return new HomePage(driver);
     }

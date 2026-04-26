@@ -19,15 +19,15 @@ public class RegisterPage extends BasePage {
     private final By agreeCheckbox = By.name("agree");
     private final By continueButton = By.cssSelector("input[value='Continue']");
 
-    // Success message after registration
+    // Success message after registration - FIXED LOCATOR
     private final By successMessage = By.xpath("//h1[contains(text(), 'Your Account Has Been Created!')]");
 
-    // Error messages for validation
-    private final By firstNameError = By.xpath("//div[contains(@class, 'text-danger')]//following-sibling::div[contains(text(), 'First Name')]");
-    private final By lastNameError = By.xpath("//div[contains(@class, 'text-danger')]//following-sibling::div[contains(text(), 'Last Name')]");
-    private final By emailError = By.xpath("//div[contains(@class, 'text-danger')]//following-sibling::div[contains(text(), 'E-Mail')]");
-    private final By telephoneError = By.xpath("//div[contains(@class, 'text-danger')]//following-sibling::div[contains(text(), 'Telephone')]");
-    private final By passwordError = By.xpath("//div[contains(@class, 'text-danger')]//following-sibling::div[contains(text(), 'Password')]");
+    // Error messages for validation - FIXED LOCATORS for TutorialsNinja
+    private final By firstNameError = By.xpath("//input[@id='input-firstname']/following-sibling::div[@class='text-danger']");
+    private final By lastNameError = By.xpath("//input[@id='input-lastname']/following-sibling::div[@class='text-danger']");
+    private final By emailError = By.xpath("//input[@id='input-email']/following-sibling::div[@class='text-danger']");
+    private final By telephoneError = By.xpath("//input[@id='input-telephone']/following-sibling::div[@class='text-danger']");
+    private final By passwordError = By.xpath("//input[@id='input-password']/following-sibling::div[@class='text-danger']");
 
     // Successful registration
     public AccountPage registerSuccess(String fName, String lName, String mail,
@@ -43,10 +43,9 @@ public class RegisterPage extends BasePage {
         return new AccountPage(driver);
     }
 
-    // Registration with errors - doesn't click agree (for testing error scenarios)
+    // Registration with errors
     public RegisterPage registerWithErrors(String fName, String lName, String mail,
                                            String phone, String pass) {
-        // Only type non-null and non-empty values
         if (fName != null && !fName.isEmpty()) type(firstName, fName);
         if (lName != null && !lName.isEmpty()) type(lastName, lName);
         if (mail != null && !mail.isEmpty()) type(email, mail);
@@ -55,7 +54,6 @@ public class RegisterPage extends BasePage {
             type(password, pass);
             type(confirmPassword, pass);
         }
-        // Don't click agree checkbox - this should cause validation errors
         click(continueButton);
         return this;
     }

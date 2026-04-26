@@ -18,7 +18,7 @@ public class LoginTest extends BaseTest {
 
     @DataProvider(name = "loginData")
     public Object[][] getLoginData() {
-        ExcelReader reader = new ExcelReader("testdata/Login.xlsx", "Login");
+        ExcelReader reader = new ExcelReader("testdata/testdata.xlsx", "Login");
         return reader.getData();
     }
 

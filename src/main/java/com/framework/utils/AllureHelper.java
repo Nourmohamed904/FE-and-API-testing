@@ -1,9 +1,5 @@
 package com.framework.utils;
 
-public class AllureHelper {
-}
-package com.framework.utils;
-
 import io.qameta.allure.Attachment;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;

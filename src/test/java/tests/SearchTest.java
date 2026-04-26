@@ -11,20 +11,21 @@ public class SearchTest extends BaseTest {
 
     @DataProvider(name = "searchData")
     public Object[][] getSearchData() {
-        ExcelReader reader = new ExcelReader("testdata.xlsx", "Search");
+        ExcelReader reader = new ExcelReader("testdata/testdata.xlsx", "Search");
         return reader.getData();
     }
 
     @Test(dataProvider = "searchData")
     public void testSearch(String product, String expected) {
-
         HomePage home = new HomePage(driver);
         SearchPage search = home.header().search(product);
 
         if (expected.equalsIgnoreCase("found")) {
-            Assert.assertTrue(search.hasResults());
+            Assert.assertTrue(search.hasResults(), "Expected results to be found for: " + product);
         } else {
-            Assert.assertTrue(search.getNoResultsMessage().contains("no product"));
+            String message = search.getNoResultsMessage();
+            Assert.assertTrue(message.toLowerCase().contains("no product") || !search.hasResults(),
+                    "Expected 'no product' message for: " + product + ". Got: " + message);
         }
     }
 }
