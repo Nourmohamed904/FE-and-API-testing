@@ -4,9 +4,11 @@ import com.framework.pages.components.HeaderComponent;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.List;
 
 public class BasePage {
 
@@ -24,6 +26,10 @@ public class BasePage {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
+    protected List<WebElement> waitForElements(By locator) {
+        return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+    }
+
     protected void click(By locator) {
         wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
     }
@@ -39,7 +45,19 @@ public class BasePage {
     }
 
     protected boolean isDisplayed(By locator) {
-        return waitForElement(locator).isDisplayed();
+        try {
+            return waitForElement(locator).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    protected boolean areElementsPresent(By locator) {
+        return !driver.findElements(locator).isEmpty();
+    }
+
+    protected int getElementCount(By locator) {
+        return driver.findElements(locator).size();
     }
 
     public HeaderComponent header() {

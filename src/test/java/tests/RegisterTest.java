@@ -1,29 +1,42 @@
-package tests;
+package com.framework.utils;
 
-import base.BaseTest;
-import com.framework.pages.*;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-import com.framework.utils.ExcelReader;
+import io.qameta.allure.Allure;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 
-public class RegisterTest extends BaseTest {
+public class AllureHelper {
 
-    @DataProvider(name = "registerData")
-    public Object[][] getRegisterData() {
-        ExcelReader reader = new ExcelReader("testdata.xlsx", "Register");
-        return reader.getData();
+    @Attachment(value = "Screenshot on failure", type = "image/png")
+    public static byte[] takeScreenshot(WebDriver driver) {
+        try {
+            return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    @Test(dataProvider = "registerData")
-    public void testRegister(String fName, String lName, String email,
-                             String phone, String password) {
+    @Attachment(value = "Test Log: {0}", type = "text/plain")
+    public static String attachLog(String message) {
+        return message;
+    }
 
-        HomePage home = new HomePage(driver);
-        RegisterPage register = home.header().goToRegister();
+    @Attachment(value = "Page Source", type = "text/html")
+    public static String attachPageSource(WebDriver driver) {
+        return driver.getPageSource();
+    }
 
-        AccountPage account = register.register(fName, lName, email, phone, password);
+    // Alternative method using Allure.addAttachment (more flexible)
+    public static void addLog(String message) {
+        Allure.addAttachment("Log Message", "text/plain", message);
+    }
 
-        Assert.assertTrue(account.isAccountPageDisplayed());
+    public static void addScreenshot(WebDriver driver, String name) {
+        try {
+            byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+            Allure.addAttachment(name, "image/png", screenshot, "png");
+        } catch (Exception e) {
+            Allure.addAttachment("Screenshot Error", "text/plain", e.getMessage());
+        }
     }
 }

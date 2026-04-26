@@ -3,6 +3,7 @@ package com.framework.pages;
 import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class ProductPage extends BasePage {
 
@@ -19,6 +20,7 @@ public class ProductPage extends BasePage {
     }
 
     public String getSuccessMessage() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(successAlert));
         return getText(successAlert);
     }
 }
