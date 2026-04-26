@@ -5,7 +5,7 @@ import com.framework.pages.*;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import utils.ExcelReader;
+import com.framework.utils.ExcelReader;
 
 public class LoginTest extends BaseTest {
 
