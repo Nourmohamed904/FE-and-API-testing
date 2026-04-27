@@ -2,6 +2,7 @@ package com.framework.pages;
 
 import com.framework.base.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -31,7 +32,6 @@ public class SearchPage extends BasePage {
     // Left menu
     private final By activeLeftMenuItem = By.cssSelector(".list-group a.active");
 
-    // Navigation menus - FIXED based on actual HTML
     private final By desktopsMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(), 'Desktops')]");
     private final By showAllDesktops = By.xpath("//a[contains(@class, 'see-all') and contains(text(), 'Show AllDesktops')]");
 
@@ -45,7 +45,6 @@ public class SearchPage extends BasePage {
     private final By mp3PlayersMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(), 'MP3 Players')]");
     private final By showAllMP3 = By.xpath("//a[contains(@class, 'see-all') and contains(text(), 'Show AllMP3 Players')]");
 
-    // FIXED: More robust navigation using hover and click
     public SearchPage goToDesktops() {
         hoverAndClick(desktopsMenu, showAllDesktops);
         waitForPageLoad();
@@ -76,13 +75,8 @@ public class SearchPage extends BasePage {
         return this;
     }
 
-    // Helper method to wait for page load after navigation
     private void waitForPageLoad() {
-        try {
-            Thread.sleep(1000); // Small delay for page transition
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        waitForDocumentReady();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("content")));
     }
 
@@ -163,9 +157,7 @@ public class SearchPage extends BasePage {
         return getElementCount(productItems);
     }
 
-    // Cart - FIXED with more robust selector
     public SearchPage addFirstProductToCart() {
-        // More robust selector for add to cart button
         By addBtn = By.cssSelector(".product-layout .button-group button:first-child");
         WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(addBtn));
         addButton.click();
@@ -180,18 +172,6 @@ public class SearchPage extends BasePage {
         return "";
     }
 
-    // Product navigation
-    public ProductPage clickProduct(String productName) {
-        for (WebElement product : waitForElements(productNames)) {
-            if (product.getText().equalsIgnoreCase(productName)) {
-                product.click();
-                return new ProductPage(driver);
-            }
-        }
-        throw new RuntimeException("Product not found: " + productName);
-    }
-
-    // NEW: Get any product name (first one)
     public String getFirstProductName() {
         List<String> products = getAllProductNames();
         if (!products.isEmpty()) {
@@ -200,7 +180,6 @@ public class SearchPage extends BasePage {
         return null;
     }
 
-    // Add this method to SearchPage class
     public boolean isProductDisplayed(String productName) {
         try {
             By productLink = By.linkText(productName);
@@ -208,5 +187,43 @@ public class SearchPage extends BasePage {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public ProductPage clickProduct(String productName) {
+        int maxRetries = 3;
+        int retryCount = 0;
+
+        while (retryCount < maxRetries) {
+            try {
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(productNames));
+
+                for (WebElement product : driver.findElements(productNames)) {
+                    if (product.getText().equalsIgnoreCase(productName)) {
+                        ((JavascriptExecutor) driver)
+                                .executeScript("arguments[0].scrollIntoView(true);", product);
+                        wait.until(ExpectedConditions.elementToBeClickable(product));
+
+                        try {
+                            product.click();
+                        } catch (Exception e) {
+                            ((JavascriptExecutor) driver)
+                                    .executeScript("arguments[0].click();", product);
+                        }
+
+                        return new ProductPage(driver);
+                    }
+                }
+            } catch (Exception e) {
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    throw new RuntimeException("Product not found: " + productName, e);
+                }
+                // Refresh the page and try again
+                driver.navigate().refresh();
+                waitForPageLoad();
+            }
+        }
+
+        throw new RuntimeException("Product not found after retries: " + productName);
     }
 }

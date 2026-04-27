@@ -1,17 +1,23 @@
 package com.framework.pages.components;
 
-import com.framework.pages.*;
+import com.framework.pages.CartPage;
+import com.framework.pages.HomePage;
+import com.framework.pages.LoginPage;
+import com.framework.pages.RegisterPage;
+import com.framework.pages.SearchPage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.time.Duration;
 
 public class HeaderComponent {
 
-    protected WebDriver driver;
-    protected WebDriverWait wait;
+    protected final WebDriver driver;
+    protected final WebDriverWait wait;
 
     public HeaderComponent(WebDriver driver) {
         this.driver = driver;
@@ -23,7 +29,12 @@ public class HeaderComponent {
     }
 
     protected void click(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        try {
+            element.click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
     }
 
     protected void type(By locator, String text) {
@@ -49,7 +60,7 @@ public class HeaderComponent {
     private final By cartDropdownTrigger = By.cssSelector("#cart .btn-inverse");
     private final By viewCartLink = By.linkText("View Cart");
     private final By cartTotal = By.id("cart-total");
-    private final By currencySelector = By.id("form-currency");
+    private final By currencySelector = By.cssSelector("#form-currency button.dropdown-toggle");
     private final By euroCurrency = By.name("EUR");
 
     public HeaderComponent changeCurrencyToEuro() {

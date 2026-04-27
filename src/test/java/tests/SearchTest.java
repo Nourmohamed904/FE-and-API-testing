@@ -1,25 +1,35 @@
 package tests;
 
 import base.BaseTest;
-import com.framework.pages.*;
+import com.framework.pages.AccountPage;
+import com.framework.pages.HomePage;
+import com.framework.pages.LoginPage;
+import com.framework.pages.SearchPage;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import com.framework.utils.ExcelReader;
 
 public class SearchTest extends BaseTest {
 
     @DataProvider(name = "searchData")
     public Object[][] getSearchData() {
-        ExcelReader reader = new ExcelReader("testdata/testdata.xlsx", "Search");
-        return reader.getData();
+        return testDataSupport.getSheetData("Search");
     }
 
     @Test(dataProvider = "searchData")
     public void testSearch(String product, String expected) {
+        String[] credentials = testDataSupport.getValidLoginCredentials();
         HomePage home = new HomePage(driver);
+
+        // Step 1 (Assignment): Login by any valid user.
+        LoginPage loginPage = home.header().goToLogin();
+        AccountPage accountPage = loginPage.loginValid(credentials[0], credentials[1]);
+        Assert.assertTrue(accountPage.isAccountPageDisplayed(), "Login should succeed before searching.");
+
+        // Step 2 and 3 (Assignment): Enter a product name in Search and submit.
         SearchPage search = home.header().search(product);
 
+        // Step 4 (Assignment): Verify the search results.
         if (expected.equalsIgnoreCase("found")) {
             Assert.assertTrue(search.hasResults(), "Expected results to be found for: " + product);
         } else {
@@ -27,5 +37,8 @@ public class SearchTest extends BaseTest {
             Assert.assertTrue(message.toLowerCase().contains("no product") || !search.hasResults(),
                     "Expected 'no product' message for: " + product + ". Got: " + message);
         }
+
+        // Step 5 (Assignment): Log out.
+        home.header().logout();
     }
 }

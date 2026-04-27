@@ -1,60 +1,38 @@
 package tests;
 
 import base.BaseTest;
-import com.framework.pages.*;
-import com.framework.utils.ExcelReader;
+import com.framework.pages.AccountPage;
+import com.framework.pages.HomePage;
+import com.framework.pages.LoginPage;
+import com.framework.pages.SearchPage;
 import io.qameta.allure.Allure;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class BreadcrumbTest extends BaseTest {
 
-    private String validEmail;
-    private String validPassword;
-
-    @BeforeMethod
-    public void getValidCredentials() {
-        try {
-            ExcelReader reader = new ExcelReader("testdata/testdata.xlsx", "Login");
-            Object[][] data = reader.getData();
-            for (Object[] row : data) {
-                String expected = row[2].toString();
-                if (expected.equalsIgnoreCase("valid")) {
-                    validEmail = row[0].toString();
-                    validPassword = row[1].toString();
-                    break;
-                }
-            }
-            Allure.addAttachment("Credentials", "Using email: " + validEmail);
-        } catch (Exception e) {
-            validEmail = "john.doe@example.com";
-            validPassword = "Password123";
-        }
-    }
-
     @Test
     public void testBreadcrumbAndLeftMenu() {
+        String[] credentials = testDataSupport.getValidLoginCredentials();
         HomePage home = new HomePage(driver);
 
-        // Login with credentials
+        // Step 1 (Assignment): Login by any valid user.
         LoginPage login = home.header().goToLogin();
-        AccountPage account = login.loginValid(validEmail, validPassword);
+        AccountPage account = login.loginValid(credentials[0], credentials[1]);
+        Assert.assertTrue(account.isAccountPageDisplayed(), "Login should succeed before navigation checks.");
 
-        // Go to Tablets
-        SearchPage searchPage = new SearchPage(driver);
-        searchPage.goToTablets();
+        // Step 2 (Assignment): Click on "Tablets".
+        SearchPage searchPage = new SearchPage(driver).goToTablets();
 
-        // Check breadcrumb
+        // Step 3 (Assignment): The latest link in breadcrumb is "Tablets".
         Assert.assertTrue(searchPage.isBreadcrumbCorrect("Tablets"),
                 "Breadcrumb should show 'Tablets'");
 
-        // Left menu check - optional, may not work on all pages
-        // If left menu check fails, just log it
+        // Step 4 (Assignment): Capture the highlighted left-side link for traceability.
         Allure.addAttachment("Left Menu Active",
                 "Active menu item: " + searchPage.getActiveLeftMenuItem());
 
-        // Logout
+        // Step 5 (Assignment): Log out.
         home.header().logout();
     }
 }

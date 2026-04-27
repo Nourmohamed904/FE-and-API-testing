@@ -2,6 +2,7 @@ package com.framework.pages;
 
 import com.framework.base.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -10,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CartPage extends BasePage {
+    private static final int MAX_CLEAR_ATTEMPTS = 20;
 
     public CartPage(WebDriver driver) {
         super(driver);
     }
 
-    // Cart table locators
     private final By cartTableRows = By.cssSelector(".table-bordered tbody tr, .table tbody tr");
     private final By productNameColumn = By.xpath(".//td[@class='text-left']/a");
     private final By priceColumn = By.xpath(".//td[@class='text-right']");
@@ -24,11 +25,9 @@ public class CartPage extends BasePage {
     private final By removeButton = By.cssSelector(".btn-danger");
     private final By emptyCartMessage = By.cssSelector("#content p");
 
-    // NEW: Remove button for each row - more robust
     private final By removeButtons = By.cssSelector("button[onclick*='cart.remove']");
-
-    // NEW: Warning message for out of stock items
     private final By warningMessage = By.cssSelector(".alert-danger");
+    private final By cartContent = By.id("content");
 
     public boolean isProductInCart(String productName) {
         try {
@@ -106,38 +105,34 @@ public class CartPage extends BasePage {
         return areElementsPresent(warningMessage) ? getText(warningMessage) : "";
     }
 
-    // ========== NEW METHOD: Clear all items from cart ==========
     public CartPage clearCart() {
-        List<WebElement> removeButtonsList = driver.findElements(removeButtons);
+        waitForElement(cartContent);
 
-        if (removeButtonsList.isEmpty()) {
-            // Cart is already empty
-            return this;
-        }
-
-        // Keep removing until cart is empty
-        int maxAttempts = 10;
         int attempts = 0;
 
-        while (getCartItemCount() > 0 && attempts < maxAttempts) {
-            removeButtonsList = driver.findElements(removeButtons);
-            if (!removeButtonsList.isEmpty()) {
-                try {
-                    // Click the first remove button
-                    removeButtonsList.get(0).click();
-                    // Wait for cart to update
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    break;
-                }
+        while (getCartItemCount() > 0 && attempts < MAX_CLEAR_ATTEMPTS) {
+            List<WebElement> removeButtonsList = driver.findElements(removeButtons);
+
+            if (removeButtonsList.isEmpty()) {
+                break;
+            }
+
+            try {
+                WebElement removeBtn = removeButtonsList.get(0);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", removeBtn);
+                wait.until(ExpectedConditions.stalenessOf(removeBtn));
+            } catch (Exception e) {
+                break;
             }
             attempts++;
         }
 
+        driver.navigate().refresh();
+        waitForElement(cartContent);
+
         return this;
     }
 
-    // NEW: Remove specific product from cart
     public CartPage removeProduct(String productName) {
         List<WebElement> rows = driver.findElements(cartTableRows);
 
@@ -146,21 +141,19 @@ public class CartPage extends BasePage {
             try {
                 WebElement nameElement = row.findElement(productNameColumn);
                 if (nameElement.getText().toLowerCase().contains(productName.toLowerCase())) {
-                    // Find remove button in this row
                     WebElement removeBtn = row.findElement(By.cssSelector(".btn-danger"));
-                    removeBtn.click();
-                    Thread.sleep(1000);
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", removeBtn);
+                    wait.until(ExpectedConditions.stalenessOf(row));
                     break;
                 }
             } catch (Exception e) {
-                // Continue to next row
+                // Try the next row if this one changed while the cart refreshed.
             }
         }
 
         return this;
     }
 
-    // NEW: Get all product names in cart
     public List<String> getAllProductNamesInCart() {
         List<String> productNames = new ArrayList<>();
         List<WebElement> rows = driver.findElements(cartTableRows);

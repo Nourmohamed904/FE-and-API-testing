@@ -12,16 +12,17 @@ import org.testng.annotations.BeforeMethod;
 public class BaseTest {
     protected WebDriver driver;
     protected ConfigReader configReader;
+    protected TestDataSupport testDataSupport;
 
     @BeforeMethod
     public void setUp() {
         configReader = new ConfigReader();
+        testDataSupport = new TestDataSupport(configReader);
         driver = WebDriverFactory.getDriver(configReader);
         driver.manage().window().maximize();
-        driver.get(configReader.getProperty("base.url"));
+        driver.get(configReader.getRequiredProperty("base.url"));
 
-        // Use Allure.addAttachment instead
-        Allure.addAttachment("Browser Started", "Navigated to: " + configReader.getProperty("base.url"));
+        Allure.addAttachment("Browser Started", "Navigated to: " + configReader.getRequiredProperty("base.url"));
     }
 
     @AfterMethod

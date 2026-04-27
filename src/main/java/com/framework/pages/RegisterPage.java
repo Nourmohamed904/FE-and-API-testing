@@ -4,7 +4,7 @@ import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import java.time.Duration;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class RegisterPage extends BasePage {
 
@@ -23,7 +23,6 @@ public class RegisterPage extends BasePage {
 
     private final By successMessage = By.xpath("//h1[contains(text(), 'Your Account Has Been Created!')]");
 
-    // Fixed error locators with contains for flexibility
     private final By firstNameError = By.xpath("//input[@id='input-firstname']/following-sibling::div[contains(@class, 'text-danger')]");
     private final By lastNameError = By.xpath("//input[@id='input-lastname']/following-sibling::div[contains(@class, 'text-danger')]");
     private final By emailError = By.xpath("//input[@id='input-email']/following-sibling::div[contains(@class, 'text-danger')]");
@@ -56,24 +55,14 @@ public class RegisterPage extends BasePage {
             type(confirmPassword, pass);
         }
         click(continueButton);
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        wait.until(driver -> isAnyErrorDisplayed() || isSuccessMessageDisplayed());
         return this;
     }
 
-    // Fast error checking with reduced timeout
     private boolean isElementPresent(By locator) {
         try {
-            driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-            boolean result = driver.findElement(locator).isDisplayed();
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-            return result;
-        } catch (NoSuchElementException e) {
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
+        } catch (Exception e) {
             return false;
         }
     }

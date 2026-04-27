@@ -10,14 +10,15 @@ import java.time.Duration;
 import java.util.List;
 
 public class BasePage {
+    private static final int DEFAULT_WAIT_SECONDS = 15;
 
-    protected WebDriver driver;
-    protected WebDriverWait wait;
-    protected HeaderComponent header;
+    protected final WebDriver driver;
+    protected final WebDriverWait wait;
+    protected final HeaderComponent header;
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_WAIT_SECONDS));
         this.header = new HeaderComponent(driver);
     }
 
@@ -77,7 +78,6 @@ public class BasePage {
         new Actions(driver).moveToElement(element).perform();
     }
 
-    // 🔥 NEW: hover + click (perfect for dropdown menus)
     public void hoverAndClick(By hoverLocator, By clickLocator) {
         hover(hoverLocator);
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(clickLocator));
@@ -88,4 +88,10 @@ public class BasePage {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         }
     }
+
+    protected void waitForDocumentReady() {
+        wait.until(driver -> "complete".equals(
+                ((JavascriptExecutor) driver).executeScript("return document.readyState")));
+    }
+
 }
