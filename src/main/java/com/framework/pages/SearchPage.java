@@ -4,8 +4,8 @@ import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,59 +15,48 @@ public class SearchPage extends BasePage {
         super(driver);
     }
 
-    // Product listing elements
+    // Product listing
     private final By productItems = By.cssSelector(".product-layout");
     private final By productNames = By.cssSelector(".product-layout .caption h4 a");
     private final By productPrices = By.cssSelector(".product-layout .price");
     private final By noResultsMessage = By.cssSelector("#content p");
 
-    // Sorting elements
+    // Sorting
     private final By sortDropdown = By.id("input-sort");
 
-    // Breadcrumb elements
+    // Breadcrumb
     private final By activeBreadcrumb = By.cssSelector(".breadcrumb li:last-child");
 
-    // Left side menu
-    private final By leftSideMenu = By.cssSelector(".list-group a");
+    // Left menu
     private final By activeLeftMenuItem = By.cssSelector(".list-group a.active");
 
-    // Navigation methods - Using correct selectors for the site
-    private final By desktopsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Desktops')]");
-    private final By showAllDesktops = By.xpath("//a[contains(text(),'Show All Desktops')]");
-    private final By laptopsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Laptops')]");
-    private final By showAllLaptops = By.xpath("//a[contains(text(),'Show All Laptops')]");
-    private final By tabletsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Tablets')]");
-    private final By phonesMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Phones & PDAs')]");
-    private final By mp3PlayersMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'MP3 Players')]");
+    // Navigation menus
+    private final By desktopsMenu = By.linkText("Desktops");
+    private final By showAllDesktops = By.linkText("Show All Desktops");
 
-    // Category navigation methods with hover
+    private final By laptopsMenu = By.linkText("Laptops & Notebooks");
+    private final By showAllLaptops = By.linkText("Show All Laptops & Notebooks");
+
+    private final By tabletsMenu = By.linkText("Tablets");
+    private final By phonesMenu = By.linkText("Phones & PDAs");
+
+    private final By mp3PlayersMenu = By.linkText("MP3 Players");
+    private final By showAllMP3 = By.linkText("Show All MP3 Players");
+
+    // ✅ Navigation (FIXED)
+
     public SearchPage goToDesktops() {
-        WebElement desktopsElement = waitForElement(desktopsMenu);
-        Actions actions = new Actions(driver);
-        actions.moveToElement(desktopsElement).perform();
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        click(showAllDesktops);
+        hoverAndClick(desktopsMenu, showAllDesktops);
         return this;
     }
 
     public SearchPage goToLaptops() {
-        WebElement laptopsElement = waitForElement(laptopsMenu);
-        Actions actions = new Actions(driver);
-        actions.moveToElement(laptopsElement).perform();
+        hoverAndClick(laptopsMenu, showAllLaptops);
+        return this;
+    }
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        click(showAllLaptops);
+    public SearchPage goToMP3Players() {
+        hoverAndClick(mp3PlayersMenu, showAllMP3);
         return this;
     }
 
@@ -81,40 +70,20 @@ public class SearchPage extends BasePage {
         return this;
     }
 
-    public SearchPage goToMP3Players() {
-        WebElement mp3Element = waitForElement(mp3PlayersMenu);
-        Actions actions = new Actions(driver);
-        actions.moveToElement(mp3Element).perform();
+    // ✅ Products
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        click(By.xpath("//a[contains(text(),'Show All MP3 Players')]"));
-        return this;
-    }
-
-    // Search result methods
     public List<String> getAllProductNames() {
         List<String> names = new ArrayList<>();
-        if (areElementsPresent(productNames)) {
-            List<WebElement> productElements = driver.findElements(productNames);
-            for (WebElement product : productElements) {
-                names.add(product.getText());
-            }
+        for (WebElement product : driver.findElements(productNames)) {
+            names.add(product.getText());
         }
         return names;
     }
 
     public List<String> getAllProductPrices() {
         List<String> prices = new ArrayList<>();
-        if (areElementsPresent(productPrices)) {
-            List<WebElement> priceElements = driver.findElements(productPrices);
-            for (WebElement price : priceElements) {
-                prices.add(price.getText());
-            }
+        for (WebElement price : driver.findElements(productPrices)) {
+            prices.add(price.getText());
         }
         return prices;
     }
@@ -124,16 +93,13 @@ public class SearchPage extends BasePage {
     }
 
     public String getNoResultsMessage() {
-        if (areElementsPresent(noResultsMessage)) {
-            return getText(noResultsMessage);
-        }
-        return "";
+        return areElementsPresent(noResultsMessage) ? getText(noResultsMessage) : "";
     }
 
-    // Sorting methods
-    public SearchPage sortBy(String sortOption) {
-        Select sortSelect = new Select(waitForElement(sortDropdown));
-        sortSelect.selectByVisibleText(sortOption);
+    // ✅ Sorting
+
+    public SearchPage sortBy(String option) {
+        new Select(waitForElement(sortDropdown)).selectByVisibleText(option);
         return this;
     }
 
@@ -147,46 +113,64 @@ public class SearchPage extends BasePage {
 
     public boolean isSortedAscending(List<String> items) {
         for (int i = 0; i < items.size() - 1; i++) {
-            if (items.get(i).compareToIgnoreCase(items.get(i + 1)) > 0) {
-                return false;
-            }
+            if (items.get(i).compareToIgnoreCase(items.get(i + 1)) > 0) return false;
         }
         return true;
     }
 
     public boolean isSortedDescending(List<String> items) {
         for (int i = 0; i < items.size() - 1; i++) {
-            if (items.get(i).compareToIgnoreCase(items.get(i + 1)) < 0) {
-                return false;
-            }
+            if (items.get(i).compareToIgnoreCase(items.get(i + 1)) < 0) return false;
         }
         return true;
     }
 
-    // Breadcrumb methods
+    // ✅ Breadcrumb
+
     public String getActiveBreadcrumb() {
         return getText(activeBreadcrumb);
     }
 
-    public boolean isBreadcrumbCorrect(String expectedLastCrumb) {
-        String actual = getActiveBreadcrumb();
-        return actual.equalsIgnoreCase(expectedLastCrumb);
+    public boolean isBreadcrumbCorrect(String expected) {
+        return getActiveBreadcrumb().equalsIgnoreCase(expected);
     }
 
-    // Left side menu methods
+    // ✅ Left menu
+
     public String getActiveLeftMenuItem() {
-        if (areElementsPresent(activeLeftMenuItem)) {
-            return getText(activeLeftMenuItem);
-        }
-        return "";
+        return areElementsPresent(activeLeftMenuItem) ? getText(activeLeftMenuItem) : "";
     }
 
-    public boolean isLeftMenuItemHighlighted(String expectedItem) {
-        String actual = getActiveLeftMenuItem();
-        return actual.equalsIgnoreCase(expectedItem);
+    public boolean isLeftMenuItemHighlighted(String expected) {
+        return getActiveLeftMenuItem().equalsIgnoreCase(expected);
     }
 
     public int getProductCount() {
         return getElementCount(productItems);
+    }
+
+    // ✅ Cart
+
+    public SearchPage addFirstProductToCart() {
+        By addBtn = By.cssSelector(".product-layout:first-child button[onclick*='cart.add']");
+        click(addBtn);
+        return this;
+    }
+
+    public String getAddToCartSuccessMessage() {
+        By successAlert = By.cssSelector(".alert-success");
+        return areElementsPresent(successAlert) ? getText(successAlert) : "";
+    }
+
+    // ✅ Product navigation
+
+    public ProductPage clickProduct(String productName) {
+        for (WebElement product : waitForElements(productNames)) {
+            if (product.getText().equalsIgnoreCase(productName)) {
+                product.click();
+                return new ProductPage(driver);
+            }
+        }
+        throw new RuntimeException("Product not found: " + productName);
     }
 }

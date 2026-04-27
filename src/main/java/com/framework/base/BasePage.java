@@ -1,15 +1,13 @@
 package com.framework.base;
 
 import com.framework.pages.components.HeaderComponent;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class BasePage {
 
@@ -19,7 +17,7 @@ public class BasePage {
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         this.header = new HeaderComponent(driver);
     }
 
@@ -31,15 +29,20 @@ public class BasePage {
         return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
     }
 
-    protected void click(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    public void click(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+
+        try {
+            element.click();
+        } catch (Exception e) {
+            // fallback JS click
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
     }
 
-    // In BasePage.java, update the type method:
     protected void type(By locator, String text) {
-        if (text == null || text.equals("null") || text.isEmpty()) {
-            return;  // Don't type anything if text is null or empty
-        }
+        if (text == null || text.trim().isEmpty()) return;
+
         WebElement element = waitForElement(locator);
         element.clear();
         element.sendKeys(text);
@@ -69,12 +72,20 @@ public class BasePage {
         return header;
     }
 
-    // Add this method to BasePage.java
-    protected boolean isElementPresentFast(By locator) {
+    public void hover(By locator) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        new Actions(driver).moveToElement(element).perform();
+    }
+
+    // 🔥 NEW: hover + click (perfect for dropdown menus)
+    public void hoverAndClick(By hoverLocator, By clickLocator) {
+        hover(hoverLocator);
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(clickLocator));
+
         try {
-            return driver.findElement(locator).isDisplayed();
-        } catch (NoSuchElementException e) {
-            return false;
+            element.click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         }
     }
 }
