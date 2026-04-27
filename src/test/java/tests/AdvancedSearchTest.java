@@ -124,7 +124,7 @@ public class AdvancedSearchTest extends BaseTest {
 
         // Also check if any products are displayed
         java.util.List<WebElement> productResults = driver.findElements(By.cssSelector(".product-layout"));
-        boolean hasProducts = productResults.size() > 0;
+        boolean hasProducts = !productResults.isEmpty();
 
         if (hasProducts) {
             AllureHelper.attachLog("WARNING: Products found without subcategory search: " + productResults.size());

@@ -1,12 +1,13 @@
 package com.framework.pages;
 
-import com.framework.base.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
-public class RegisterPage extends BasePage {
+import java.time.Duration;
+
+public class RegisterPage extends HomePage {
 
     public RegisterPage(WebDriver driver) {
         super(driver);
@@ -18,7 +19,6 @@ public class RegisterPage extends BasePage {
     private final By telephone = By.id("input-telephone");
     private final By password = By.id("input-password");
     private final By confirmPassword = By.id("input-confirm");
-    private final By agreeCheckbox = By.name("agree");
     private final By continueButton = By.cssSelector("input[value='Continue']");
 
     private final By successMessage = By.xpath("//h1[contains(text(), 'Your Account Has Been Created!')]");
@@ -31,21 +31,20 @@ public class RegisterPage extends BasePage {
 
     public AccountPage registerSuccess(String fName, String lName, String mail,
                                        String phone, String pass) {
-        if (fName != null && !fName.equals("null") && !fName.isEmpty()) type(firstName, fName);
-        if (lName != null && !lName.equals("null") && !lName.isEmpty()) type(lastName, lName);
-        if (mail != null && !mail.equals("null") && !mail.isEmpty()) type(email, mail);
-        if (phone != null && !phone.equals("null") && !phone.isEmpty()) type(telephone, phone);
-        if (pass != null && !pass.equals("null") && !pass.isEmpty()) {
-            type(password, pass);
-            type(confirmPassword, pass);
-        }
-        click(agreeCheckbox);
+        typeInfo(fName, lName, mail, phone, pass);
+        tickAgreementCheckbox();
         click(continueButton);
         return new AccountPage(driver);
     }
 
-    public RegisterPage registerWithErrors(String fName, String lName, String mail,
-                                           String phone, String pass) {
+    public void registerWithErrors(String fName, String lName, String mail,
+                                   String phone, String pass) {
+        typeInfo(fName, lName, mail, phone, pass);
+        click(continueButton);
+        waitForValidationFeedback();
+    }
+
+    private void typeInfo(String fName, String lName, String mail, String phone, String pass) {
         if (fName != null && !fName.equals("null") && !fName.isEmpty()) type(firstName, fName);
         if (lName != null && !lName.equals("null") && !lName.isEmpty()) type(lastName, lName);
         if (mail != null && !mail.equals("null") && !mail.isEmpty()) type(email, mail);
@@ -54,17 +53,27 @@ public class RegisterPage extends BasePage {
             type(password, pass);
             type(confirmPassword, pass);
         }
-        click(continueButton);
-        wait.until(driver -> isAnyErrorDisplayed() || isSuccessMessageDisplayed());
-        return this;
     }
 
     private boolean isElementPresent(By locator) {
-        try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        return driver.findElements(locator).stream().anyMatch(element -> {
+            try {
+                return element.isDisplayed();
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    private void tickAgreementCheckbox() {
+        ((JavascriptExecutor) driver).executeScript(
+                "const checkbox = document.querySelector(\"input[name='agree']\");" +
+                        "if (checkbox && !checkbox.checked) { checkbox.click(); }");
+    }
+
+    private void waitForValidationFeedback() {
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, Duration.ofSeconds(3))
+                .until(currentDriver -> isAnyErrorDisplayed() || isSuccessMessageDisplayed());
     }
 
     public boolean isFirstNameErrorDisplayed() { return isElementPresent(firstNameError); }

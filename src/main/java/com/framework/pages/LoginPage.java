@@ -1,10 +1,9 @@
 package com.framework.pages;
 
-import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class LoginPage extends BasePage {
+public class LoginPage extends HomePage {
 
     public LoginPage(WebDriver driver) {
         super(driver);
@@ -22,11 +21,10 @@ public class LoginPage extends BasePage {
         return new AccountPage(driver);
     }
 
-    public LoginPage loginInvalid(String email, String password) {
+    public void loginInvalid(String email, String password) {
         type(emailField, email);
         type(passwordField, password);
         click(loginButton);
-        return this;
     }
 
     public String getErrorMessage() {

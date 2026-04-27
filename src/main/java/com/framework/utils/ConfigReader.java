@@ -27,12 +27,4 @@ public class ConfigReader {
         }
         return value.trim();
     }
-
-    public int getIntProperty(String key, int defaultValue) {
-        String value = properties.getProperty(key);
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return Integer.parseInt(value.trim());
-    }
 }

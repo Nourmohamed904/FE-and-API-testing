@@ -1,10 +1,9 @@
 package com.framework.pages;
 
-import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class AccountPage extends BasePage {
+public class AccountPage extends HomePage {
 
     public AccountPage(WebDriver driver) {
         super(driver);
@@ -26,10 +25,5 @@ public class AccountPage extends BasePage {
 
     public boolean isLogoutDisplayed() {
         return isDisplayed(logoutLink);
-    }
-
-    public HomePage logout() {
-        click(logoutLink);
-        return new HomePage(driver);
     }
 }

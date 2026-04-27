@@ -1,11 +1,10 @@
 package com.framework.pages;
 
-import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-public class ProductPage extends BasePage {
+public class ProductPage extends HomePage {
     private static final String DEFAULT_DELIVERY_DATE = "2026-05-10";
 
     public ProductPage(WebDriver driver) {
@@ -16,7 +15,7 @@ public class ProductPage extends BasePage {
     private final By deliveryDateField = By.cssSelector("input[name='date']");
     private final By successAlert = By.cssSelector(".alert-success");
 
-    public ProductPage addToCart() {
+    public void addToCart() {
         populateDeliveryDateIfRequired(DEFAULT_DELIVERY_DATE);
         wait.until(ExpectedConditions.elementToBeClickable(addToCartButton));
         scrollToElement(addToCartButton);
@@ -29,12 +28,11 @@ public class ProductPage extends BasePage {
         }
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(successAlert));
-        return this;
     }
 
-    public ProductPage addToCart(String deliveryDate) {
+    public void addToCart(String deliveryDate) {
         populateDeliveryDateIfRequired(deliveryDate);
-        return addToCart();
+        addToCart();
     }
 
     public String getSuccessMessage() {

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ExcelReader {
 
-    private Sheet sheet;
+    private final Sheet sheet;
 
     public ExcelReader(String filePath, String sheetName) {
         try {
@@ -63,8 +63,6 @@ public class ExcelReader {
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
                 return cell.getCellFormula();
-            case BLANK:
-                return "";
             default:
                 return "";
         }

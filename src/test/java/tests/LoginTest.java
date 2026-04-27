@@ -19,7 +19,7 @@ public class LoginTest extends BaseTest {
 
     @DataProvider(name = "loginData")
     public Object[][] getLoginData() {
-        Object[][] data = testDataSupport.getSheetData("Login");
+        Object[][] data = getTestDataSupport().getSheetData("Login");
         Object[][] cleanData = new Object[data.length][3];
 
         for (int i = 0; i < data.length; i++) {

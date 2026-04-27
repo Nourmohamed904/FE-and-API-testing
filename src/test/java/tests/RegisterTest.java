@@ -6,7 +6,6 @@ import com.framework.pages.HomePage;
 import com.framework.pages.RegisterPage;
 import io.qameta.allure.Allure;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -18,7 +17,7 @@ public class RegisterTest extends BaseTest {
 
     @DataProvider(name = "registerData")
     public Object[][] getRegisterData() {
-        Object[][] originalData = testDataSupport.getSheetData("Register");
+        Object[][] originalData = getTestDataSupport().getSheetData("Register");
         Object[][] modifiedData = new Object[originalData.length][7];
 
         String timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
@@ -52,13 +51,13 @@ public class RegisterTest extends BaseTest {
         RegisterPage register = home.header().goToRegister();
 
         if (expectedResult.equalsIgnoreCase("success")) {
-            // Step 1-7 (Assignment): Open Register, fill all required fields, accept agreement, continue, and verify success.
+            // Step 1-7 : Open Register, fill all required fields, accept agreement, continue, and verify success.
             AccountPage account = register.registerSuccess(firstName, lastName, email, telephone, password);
             Assert.assertTrue(account.isRegistrationSuccessDisplayed() || account.isAccountPageDisplayed(),
                     "Registration should succeed for generated email: " + email);
             Assert.assertTrue(account.isLogoutDisplayed(), "Logout should be available after successful registration.");
         } else {
-            // Step 1-6 (Assignment): Leave required fields blank or use a short password and verify the matching validation message.
+            // Step 1-6 : Leave required fields blank or use a short password and verify the matching validation message.
             register.registerWithErrors(firstName, lastName, email, telephone, password);
 
             boolean errorFound = false;
@@ -90,13 +89,4 @@ public class RegisterTest extends BaseTest {
         }
     }
 
-    @AfterMethod
-    public void cleanup() {
-        try {
-            if (driver != null && driver.getCurrentUrl().contains("account")) {
-                new HomePage(driver).header().logout();
-            }
-        } catch (Exception ignored) {
-        }
-    }
 }

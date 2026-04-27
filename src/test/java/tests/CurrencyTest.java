@@ -17,26 +17,26 @@ public class CurrencyTest extends BaseTest {
         String[] credentials = testDataSupport.getValidLoginCredentials();
         HomePage home = new HomePage(driver);
 
-        // Step 1 (Assignment): Login by any valid user.
+        // Step 1 : Login by any valid user.
         LoginPage login = home.header().goToLogin();
         AccountPage account = login.loginValid(credentials[0], credentials[1]);
         Assert.assertTrue(account.isAccountPageDisplayed(), "Login should succeed before currency validation.");
 
-        // Step 2 (Assignment): Click "Desktops" -> "Show all Desktops".
+        // Step 2 : Click "Desktops" -> "Show all Desktops".
         SearchPage searchPage = new SearchPage(driver).goToDesktops();
 
-        // Step 3 (Assignment): By default the prices are shown in dollars.
+        // Step 3 : By default the prices are shown in dollars.
         List<String> usdPrices = searchPage.getAllProductPrices();
         Assert.assertFalse(usdPrices.isEmpty(), "Desktop prices should be visible before the currency change.");
 
-        // Step 4 (Assignment): Change the currency to Euro.
+        // Step 4 : Change the currency to Euro.
         home.header().changeCurrencyToEuro();
 
-        // Step 5 (Assignment): Verify the prices change accordingly.
+        // Step 5 : Verify the prices change accordingly.
         List<String> euroPrices = searchPage.getAllProductPrices();
         Assert.assertNotEquals(usdPrices, euroPrices, "Prices should change after the currency update.");
 
-        // Step 6 (Assignment): Logout.
+        // Step 6 : Logout.
         home.header().logout();
     }
 }

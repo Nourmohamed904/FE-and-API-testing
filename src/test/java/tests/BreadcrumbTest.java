@@ -16,23 +16,23 @@ public class BreadcrumbTest extends BaseTest {
         String[] credentials = testDataSupport.getValidLoginCredentials();
         HomePage home = new HomePage(driver);
 
-        // Step 1 (Assignment): Login by any valid user.
+        // Step 1 : Login by any valid user.
         LoginPage login = home.header().goToLogin();
         AccountPage account = login.loginValid(credentials[0], credentials[1]);
         Assert.assertTrue(account.isAccountPageDisplayed(), "Login should succeed before navigation checks.");
 
-        // Step 2 (Assignment): Click on "Tablets".
+        // Step 2 : Click on "Tablets".
         SearchPage searchPage = new SearchPage(driver).goToTablets();
 
-        // Step 3 (Assignment): The latest link in breadcrumb is "Tablets".
+        // Step 3 : The latest link in breadcrumb is "Tablets".
         Assert.assertTrue(searchPage.isBreadcrumbCorrect("Tablets"),
                 "Breadcrumb should show 'Tablets'");
 
-        // Step 4 (Assignment): Capture the highlighted left-side link for traceability.
+        // Step 4 : Capture the highlighted left-side link for traceability.
         Allure.addAttachment("Left Menu Active",
                 "Active menu item: " + searchPage.getActiveLeftMenuItem());
 
-        // Step 5 (Assignment): Log out.
+        // Step 5 : Log out.
         home.header().logout();
     }
 }

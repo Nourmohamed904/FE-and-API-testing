@@ -15,25 +15,25 @@ public class SortTest extends BaseTest {
         String[] credentials = testDataSupport.getValidLoginCredentials();
         HomePage home = new HomePage(driver);
 
-        // Step 1 (Assignment): Login by any valid user.
+        // Step 1 : Login by any valid user.
         LoginPage login = home.header().goToLogin();
         AccountPage account = login.loginValid(credentials[0], credentials[1]);
         Assert.assertTrue(account.isAccountPageDisplayed(), "Login should succeed before sorting.");
 
-        // Step 2 (Assignment): Click on "Phones & PDAs".
+        // Step 2 : Click on "Phones & PDAs".
         SearchPage searchPage = new SearchPage(driver).goToPhonesAndPDAs();
 
-        // Step 3 and 4 (Assignment): Sort by name A-Z and verify ascending order.
+        // Step 3 and 4 : Sort by name A-Z and verify ascending order.
         searchPage.sortByNameAZ();
         Assert.assertTrue(searchPage.isSortedAscending(searchPage.getAllProductNames()),
                 "Products should be sorted A to Z");
 
-        // Step 5 and 6 (Assignment): Sort by name Z-A and verify descending order.
+        // Step 5 and 6 : Sort by name Z-A and verify descending order.
         searchPage.sortByNameZA();
         Assert.assertTrue(searchPage.isSortedDescending(searchPage.getAllProductNames()),
                 "Products should be sorted Z to A");
 
-        // Step 7 (Assignment): Logout.
+        // Step 7 : Logout.
         home.header().logout();
     }
 }

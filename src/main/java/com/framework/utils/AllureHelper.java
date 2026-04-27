@@ -8,17 +8,16 @@ import org.openqa.selenium.WebDriver;
 public class AllureHelper {
 
     @Attachment(value = "Screenshot on failure", type = "image/png")
-    public static byte[] takeScreenshot(WebDriver driver) {
-        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+    public static void takeScreenshot(WebDriver driver) {
+        ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
     }
 
     @Attachment(value = "Test Log: {0}", type = "text/plain")
-    public static String attachLog(String message) {
-        return message;
+    public static void attachLog(String message) {
     }
 
     @Attachment(value = "Page Source", type = "text/html")
-    public static String attachPageSource(WebDriver driver) {
-        return driver.getPageSource();
+    public static void attachPageSource(WebDriver driver) {
+        driver.getPageSource();
     }
 }

@@ -1,6 +1,5 @@
 package com.framework.pages;
 
-import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -11,7 +10,7 @@ import org.openqa.selenium.support.ui.Select;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchPage extends BasePage {
+public class SearchPage extends HomePage {
 
     public SearchPage(WebDriver driver) {
         super(driver);
@@ -53,12 +52,6 @@ public class SearchPage extends BasePage {
 
     public SearchPage goToLaptops() {
         hoverAndClick(laptopsMenu, showAllLaptops);
-        waitForPageLoad();
-        return this;
-    }
-
-    public SearchPage goToMP3Players() {
-        hoverAndClick(mp3PlayersMenu, showAllMP3);
         waitForPageLoad();
         return this;
     }
@@ -113,12 +106,12 @@ public class SearchPage extends BasePage {
         return this;
     }
 
-    public SearchPage sortByNameAZ() {
-        return sortBy("Name (A - Z)");
+    public void sortByNameAZ() {
+        sortBy("Name (A - Z)");
     }
 
-    public SearchPage sortByNameZA() {
-        return sortBy("Name (Z - A)");
+    public void sortByNameZA() {
+        sortBy("Name (Z - A)");
     }
 
     public boolean isSortedAscending(List<String> items) {
@@ -149,44 +142,11 @@ public class SearchPage extends BasePage {
         return areElementsPresent(activeLeftMenuItem) ? getText(activeLeftMenuItem) : "";
     }
 
-    public boolean isLeftMenuItemHighlighted(String expected) {
-        return getActiveLeftMenuItem().equalsIgnoreCase(expected);
-    }
-
-    public int getProductCount() {
-        return getElementCount(productItems);
-    }
-
     public SearchPage addFirstProductToCart() {
         By addBtn = By.cssSelector(".product-layout .button-group button:first-child");
         WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(addBtn));
         addButton.click();
         return this;
-    }
-
-    public String getAddToCartSuccessMessage() {
-        By successAlert = By.cssSelector(".alert-success");
-        if (areElementsPresent(successAlert)) {
-            return getText(successAlert);
-        }
-        return "";
-    }
-
-    public String getFirstProductName() {
-        List<String> products = getAllProductNames();
-        if (!products.isEmpty()) {
-            return products.get(0);
-        }
-        return null;
-    }
-
-    public boolean isProductDisplayed(String productName) {
-        try {
-            By productLink = By.linkText(productName);
-            return areElementsPresent(productLink);
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public ProductPage clickProduct(String productName) {
