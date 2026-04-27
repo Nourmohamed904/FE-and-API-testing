@@ -40,6 +40,14 @@ public class SearchPage extends BasePage {
     private final By phonesMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Phones & PDAs')]");
     private final By mp3PlayersMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'MP3 Players')]");
 
+    // NEW: Advanced search locators
+    private final By advancedSearchKeyword = By.id("input-search");
+    private final By categoryDropdown = By.name("category_id");
+    private final By subcategoryCheckbox = By.name("sub_category");
+    private final By advancedSearchButton = By.id("button-search");
+    private final By searchDescriptionCheckbox = By.name("description");
+    private final By productLinks = By.cssSelector(".product-layout .caption h4 a");
+
     // Category navigation methods with hover
     public SearchPage goToDesktops() {
         WebElement desktopsElement = waitForElement(desktopsMenu);
@@ -188,5 +196,113 @@ public class SearchPage extends BasePage {
 
     public int getProductCount() {
         return getElementCount(productItems);
+    }
+
+    // ========== NEW ADVANCED SEARCH METHODS ==========
+
+    // Go to advanced search page
+    public SearchPage goToAdvancedSearch() {
+        driver.get(driver.getCurrentUrl().replace("/index.php?route=common/home",
+                "/index.php?route=product/search"));
+        return this;
+    }
+
+    // Set search keyword
+    public SearchPage setSearchKeyword(String keyword) {
+        if (keyword != null && !keyword.equals("null") && !keyword.isEmpty()) {
+            type(advancedSearchKeyword, keyword);
+        }
+        return this;
+    }
+
+    // Select category from dropdown
+    public SearchPage selectCategory(String categoryName) {
+        if (categoryName != null && !categoryName.equals("null") && !categoryName.isEmpty()) {
+            Select select = new Select(waitForElement(categoryDropdown));
+            select.selectByVisibleText(categoryName);
+        }
+        return this;
+    }
+
+    // Enable/disable search in subcategories
+    public SearchPage setSearchInSubcategories(boolean enabled) {
+        try {
+            WebElement checkbox = waitForElement(subcategoryCheckbox);
+            if (enabled && !checkbox.isSelected()) {
+                checkbox.click();
+            } else if (!enabled && checkbox.isSelected()) {
+                checkbox.click();
+            }
+        } catch (Exception e) {
+            // Checkbox might not exist or be disabled, log but continue
+            System.out.println("Could not interact with subcategory checkbox: " + e.getMessage());
+        }
+        return this;
+    }
+
+    // Enable/disable search in product descriptions
+    public SearchPage setSearchInDescriptions(boolean enabled) {
+        try {
+            WebElement checkbox = driver.findElement(searchDescriptionCheckbox);
+            if (enabled && !checkbox.isSelected()) {
+                checkbox.click();
+            } else if (!enabled && checkbox.isSelected()) {
+                checkbox.click();
+            }
+        } catch (Exception e) {
+            // Checkbox might not exist, log but continue
+            System.out.println("Could not interact with description checkbox: " + e.getMessage());
+        }
+        return this;
+    }
+
+    // Perform advanced search
+    public SearchPage performAdvancedSearch() {
+        click(advancedSearchButton);
+        return this;
+    }
+
+    // Check if no results message is displayed
+    public boolean isNoResultsMessageDisplayed() {
+        try {
+            String message = getNoResultsMessage();
+            return message.toLowerCase().contains("no product") ||
+                    message.toLowerCase().contains("there is no product");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Get no results message text
+    public String getNoResultsMessageText() {
+        try {
+            return getNoResultsMessage();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    // Check if specific product exists in results
+    public boolean isProductDisplayed(String productName) {
+        if (productName == null || productName.isEmpty()) {
+            return false;
+        }
+        List<WebElement> products = driver.findElements(productLinks);
+        for (WebElement product : products) {
+            if (product.getText().contains(productName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Get all product names from search results
+    public List<String> getSearchResultProductNames() {
+        List<String> names = new ArrayList<>();
+        List<WebElement> products = driver.findElements(productLinks);
+        for (WebElement product : products) {
+            names.add(product.getText());
+        }
+        return names;
     }
 }
