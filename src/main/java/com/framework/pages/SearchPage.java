@@ -4,10 +4,10 @@ import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class SearchPage extends BasePage {
 
@@ -34,19 +34,40 @@ public class SearchPage extends BasePage {
     // Navigation methods - Using correct selectors for the site
     private final By desktopsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Desktops')]");
     private final By showAllDesktops = By.xpath("//a[contains(text(),'Show All Desktops')]");
+    private final By laptopsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Laptops')]");
+    private final By showAllLaptops = By.xpath("//a[contains(text(),'Show All Laptops')]");
     private final By tabletsMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Tablets')]");
     private final By phonesMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'Phones & PDAs')]");
+    private final By mp3PlayersMenu = By.xpath("//ul[@class='nav navbar-nav']/li/a[contains(text(),'MP3 Players')]");
 
-    // Category navigation methods
+    // Category navigation methods with hover
     public SearchPage goToDesktops() {
-        click(desktopsMenu);
-        // Wait a bit for submenu to appear
+        WebElement desktopsElement = waitForElement(desktopsMenu);
+        Actions actions = new Actions(driver);
+        actions.moveToElement(desktopsElement).perform();
+
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+
         click(showAllDesktops);
+        return this;
+    }
+
+    public SearchPage goToLaptops() {
+        WebElement laptopsElement = waitForElement(laptopsMenu);
+        Actions actions = new Actions(driver);
+        actions.moveToElement(laptopsElement).perform();
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        click(showAllLaptops);
         return this;
     }
 
@@ -57,6 +78,21 @@ public class SearchPage extends BasePage {
 
     public SearchPage goToPhonesAndPDAs() {
         click(phonesMenu);
+        return this;
+    }
+
+    public SearchPage goToMP3Players() {
+        WebElement mp3Element = waitForElement(mp3PlayersMenu);
+        Actions actions = new Actions(driver);
+        actions.moveToElement(mp3Element).perform();
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        click(By.xpath("//a[contains(text(),'Show All MP3 Players')]"));
         return this;
     }
 
@@ -85,6 +121,13 @@ public class SearchPage extends BasePage {
 
     public boolean hasResults() {
         return areElementsPresent(productItems);
+    }
+
+    public String getNoResultsMessage() {
+        if (areElementsPresent(noResultsMessage)) {
+            return getText(noResultsMessage);
+        }
+        return "";
     }
 
     // Sorting methods
@@ -145,13 +188,5 @@ public class SearchPage extends BasePage {
 
     public int getProductCount() {
         return getElementCount(productItems);
-    }
-
-    public String getNoResultsMessage() {
-        try {
-            return driver.findElement(noResultsMessage).getText();
-        } catch (NoSuchElementException e) {
-            return "";
-        }
     }
 }

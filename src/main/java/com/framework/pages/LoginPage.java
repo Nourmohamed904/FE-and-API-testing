@@ -2,6 +2,7 @@ package com.framework.pages;
 
 import com.framework.base.BasePage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 
 public class LoginPage extends BasePage {
@@ -30,6 +31,10 @@ public class LoginPage extends BasePage {
     }
 
     public String getErrorMessage() {
-        return getText(errorMessage);
+        try {
+            return getText(errorMessage);
+        } catch (Exception e) {
+            return "";
+        }
     }
 }
