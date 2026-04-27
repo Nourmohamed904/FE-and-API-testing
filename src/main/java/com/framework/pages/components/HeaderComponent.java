@@ -43,10 +43,6 @@ public class HeaderComponent {
         element.sendKeys(text);
     }
 
-    protected String getText(By locator) {
-        return waitForElement(locator).getText();
-    }
-
     protected boolean areElementsPresent(By locator) {
         return !driver.findElements(locator).isEmpty();
     }
@@ -59,14 +55,12 @@ public class HeaderComponent {
     private final By searchButton = By.cssSelector(".input-group-btn button");
     private final By cartDropdownTrigger = By.cssSelector("#cart .btn-inverse");
     private final By viewCartLink = By.linkText("View Cart");
-    private final By cartTotal = By.id("cart-total");
     private final By currencySelector = By.cssSelector("#form-currency button.dropdown-toggle");
     private final By euroCurrency = By.name("EUR");
 
-    public HeaderComponent changeCurrencyToEuro() {
+    public void changeCurrencyToEuro() {
         click(currencySelector);
         click(euroCurrency);
-        return this;
     }
 
     public CartPage goToShoppingCart() {
@@ -75,13 +69,9 @@ public class HeaderComponent {
         return new CartPage(driver);
     }
 
-    public String getCartTotalText() {
-        return getText(cartTotal);
-    }
 
-    public HeaderComponent openMyAccountMenu() {
+    public void openMyAccountMenu() {
         click(myAccountMenu);
-        return this;
     }
 
     public LoginPage goToLogin() {

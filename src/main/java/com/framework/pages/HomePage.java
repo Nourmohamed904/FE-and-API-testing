@@ -10,7 +10,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.List;
 
 public class HomePage {
     private static final int DEFAULT_WAIT_SECONDS = 15;
@@ -63,10 +62,6 @@ public class HomePage {
 
     protected boolean areElementsPresent(By locator) {
         return !driver.findElements(locator).isEmpty();
-    }
-
-    protected int getElementCount(By locator) {
-        return driver.findElements(locator).size();
     }
 
     public HeaderComponent header() {

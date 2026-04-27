@@ -27,8 +27,8 @@ public class AdvancedSearchTest extends BaseTest {
     @BeforeMethod
     public void getValidCredentials() {
         try {
-            ExcelReader reader = new ExcelReader("testdata/testdata.xlsx", "Login");
-            Object[][] data = reader.getData();
+            Object[][] data = getTestDataSupport().getSheetData("Login");
+
             for (Object[] row : data) {
                 if (row[2].toString().equalsIgnoreCase("valid")) {
                     validEmail = row[0].toString();

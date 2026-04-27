@@ -41,9 +41,6 @@ public class SearchPage extends HomePage {
 
     private final By phonesMenu = By.linkText("Phones & PDAs");
 
-    private final By mp3PlayersMenu = By.xpath("//ul[@class='nav navbar-nav']//a[contains(text(), 'MP3 Players')]");
-    private final By showAllMP3 = By.xpath("//a[contains(@class, 'see-all') and contains(text(), 'Show AllMP3 Players')]");
-
     public SearchPage goToDesktops() {
         hoverAndClick(desktopsMenu, showAllDesktops);
         waitForPageLoad();
@@ -100,10 +97,9 @@ public class SearchPage extends HomePage {
     }
 
     // Sorting
-    public SearchPage sortBy(String option) {
+    public void sortBy(String option) {
         new Select(waitForElement(sortDropdown)).selectByVisibleText(option);
         waitForPageLoad();
-        return this;
     }
 
     public void sortByNameAZ() {
@@ -140,13 +136,6 @@ public class SearchPage extends HomePage {
     // Left menu
     public String getActiveLeftMenuItem() {
         return areElementsPresent(activeLeftMenuItem) ? getText(activeLeftMenuItem) : "";
-    }
-
-    public SearchPage addFirstProductToCart() {
-        By addBtn = By.cssSelector(".product-layout .button-group button:first-child");
-        WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(addBtn));
-        addButton.click();
-        return this;
     }
 
     public ProductPage clickProduct(String productName) {

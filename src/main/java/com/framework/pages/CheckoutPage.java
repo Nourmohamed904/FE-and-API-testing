@@ -1,12 +1,10 @@
 package com.framework.pages;
 
-import com.framework.base.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
-public class CheckoutPage extends BasePage {
+public class CheckoutPage extends HomePage {
 
     public CheckoutPage(WebDriver driver) {
         super(driver);
@@ -21,16 +19,6 @@ public class CheckoutPage extends BasePage {
     private final By billingCountry = By.cssSelector("#input-payment-country");
     private final By billingZone = By.cssSelector("#input-payment-zone");
     private final By billingContinueBtn = By.cssSelector("#button-payment-address");
-
-    // Shipping details
-    private final By shippingFirstName = By.cssSelector("#input-shipping-firstname");
-    private final By shippingLastName = By.cssSelector("#input-shipping-lastname");
-    private final By shippingAddress1 = By.cssSelector("#input-shipping-address-1");
-    private final By shippingCity = By.cssSelector("#input-shipping-city");
-    private final By shippingPostcode = By.cssSelector("#input-shipping-postcode");
-    private final By shippingCountry = By.cssSelector("#input-shipping-country");
-    private final By shippingZone = By.cssSelector("#input-shipping-zone");
-    private final By shippingContinueBtn = By.cssSelector("#button-shipping-address");
 
     // Shipping method
     private final By flatShippingRate = By.cssSelector("input[value='flat.flat']");
@@ -47,18 +35,14 @@ public class CheckoutPage extends BasePage {
 
     // Address options
     private final By newAddressRadio = By.cssSelector("input[value='new']");
-    private final By addressDropdown = By.cssSelector("#input-payment-address");
 
-    // Confirm order table
-    private final By confirmOrderTotal = By.cssSelector(".table-bordered tfoot tr:last-child td:last-child");
-    private final By flatShippingRateText = By.cssSelector(".table-bordered td:contains('Flat Shipping Rate') + td");
+    public void fillBillingDetails(String firstName, String lastName,
+                                   String address, String city,
+                                   String postcode, String country, String zone) {
+        typeCheckoutInfo(firstName, lastName, address, city, postcode, country, zone, billingFirstName, billingLastName, billingAddress1, billingCity, billingPostcode, billingCountry, billingZone, billingContinueBtn);
+    }
 
-    // Cart widget
-    private final By cartTotalWidget = By.cssSelector("#cart-total");
-
-    public CheckoutPage fillBillingDetails(String firstName, String lastName,
-                                           String address, String city,
-                                           String postcode, String country, String zone) {
+    private void typeCheckoutInfo(String firstName, String lastName, String address, String city, String postcode, String country, String zone, By billingFirstName, By billingLastName, By billingAddress1, By billingCity, By billingPostcode, By billingCountry, By billingZone, By billingContinueBtn) {
         if (areElementsPresent(newAddressRadio)) {
             click(newAddressRadio);
         }
@@ -77,69 +61,29 @@ public class CheckoutPage extends BasePage {
         zoneSelect.selectByVisibleText(zone);
 
         click(billingContinueBtn);
-        return this;
     }
 
-    public CheckoutPage fillShippingDetails(String firstName, String lastName,
-                                            String address, String city,
-                                            String postcode, String country, String zone) {
-        if (areElementsPresent(newAddressRadio)) {
-            click(newAddressRadio);
-        }
-
-        waitForElement(shippingFirstName);
-        type(shippingFirstName, firstName);
-        type(shippingLastName, lastName);
-        type(shippingAddress1, address);
-        type(shippingCity, city);
-        type(shippingPostcode, postcode);
-
-        Select countrySelect = new Select(waitForElement(shippingCountry));
-        countrySelect.selectByVisibleText(country);
-
-        wait.until(d -> d.findElement(shippingZone).isEnabled());
-        Select zoneSelect = new Select(driver.findElement(shippingZone));
-        zoneSelect.selectByVisibleText(zone);
-
-        click(shippingContinueBtn);
-        return this;
-    }
-
-    public boolean isAddressDropdownPopulated() {
-        try {
-            Select select = new Select(driver.findElement(addressDropdown));
-            return select.getOptions().size() > 0;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public CheckoutPage selectFlatShippingRate() {
+    public void selectFlatShippingRate() {
         click(flatShippingRate);
-        return this;
     }
 
-    public CheckoutPage addComments(String comment) {
+    public void addComments(String comment) {
         if (comment != null && !comment.isEmpty()) {
             type(commentsTextarea, comment);
         }
         click(shippingMethodContinue);
-        return this;
     }
 
-    public CheckoutPage agreeToTerms() {
+    public void agreeToTerms() {
         click(termsAgreeCheckbox);
-        return this;
     }
 
-    public CheckoutPage continueToConfirm() {
+    public void continueToConfirm() {
         click(paymentMethodContinue);
-        return this;
     }
 
-    public CheckoutPage confirmOrder() {
+    public void confirmOrder() {
         click(confirmOrderBtn);
-        return this;
     }
 
     public String getOrderSuccessMessage() {
@@ -150,32 +94,16 @@ public class CheckoutPage extends BasePage {
         return getOrderSuccessMessage().contains("Your order has been placed");
     }
 
-    public boolean isDeliveryMethodSectionDisplayed() {
-        return isDisplayed(flatShippingRate);
-    }
-
-    public boolean isPaymentMethodSectionDisplayed() {
-        return isDisplayed(termsAgreeCheckbox);
-    }
-
-    public boolean isConfirmOrderSectionDisplayed() {
-        return isDisplayed(confirmOrderBtn);
-    }
-
-    public String getConfirmOrderTotal() {
-        return getText(confirmOrderTotal);
-    }
-
-    public String getFlatShippingRateInConfirmOrder() {
-        return getText(flatShippingRateText);
-    }
-
-    public String getCartTotalFromWidget() {
-        return getText(cartTotalWidget);
-    }
-
-    public boolean isCartEmptyWidget() {
-        String cartText = getCartTotalFromWidget();
-        return cartText.contains("0 item") || cartText.contains("0 items");
+    public void useSameBillingAddress() {
+        try {
+            click(By.id("button-shipping-address"));
+        } catch (Exception e) {
+            // If not found, try alternative
+            try {
+                click(By.cssSelector("#button-shipping-address"));
+            } catch (Exception ex) {
+                // Step might not be needed
+            }
+        }
     }
 }

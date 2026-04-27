@@ -42,7 +42,7 @@ public class LoginTest extends BaseTest {
         LoginPage login = home.header().goToLogin();
 
         if (expectedResult.equalsIgnoreCase("valid")) {
-            // Step 1-4 (Assignment): Go to Login, enter valid credentials, and verify My Account opens.
+            // Step 1-4 : Go to Login, enter valid credentials, and verify My Account opens.
             AccountPage account = login.loginValid(email, password);
             Assert.assertTrue(account.isAccountPageDisplayed(),
                     "Account page should be displayed for valid login. Email: " + email);
@@ -50,7 +50,7 @@ public class LoginTest extends BaseTest {
             // Step 5 (Assignment continuation): Log out after the successful login scenario.
             home.header().logout();
         } else {
-            // Step 1-4 (Assignment): Go to Login, enter wrong credentials, and verify the warning message.
+            // Step 1-4 : Go to Login, enter wrong credentials, and verify the warning message.
             login.loginInvalid(email, password);
 
             String errorMessage = login.getErrorMessage();
